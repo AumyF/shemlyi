@@ -1,9 +1,40 @@
 use std::str::FromStr;
 
-struct Tokenizer {
-    input: String,
-    position: usize,
-    tokens: Vec<Token>,
+fn tokenize(input: &str) -> Vec<Token> {
+    let mut tk = Tokenizer::new(input);
+
+    while !tk.at_eof() {
+        tk.skip_space();
+        if !(tk.operator("+")
+            || tk.operator("-")
+            || tk.operator("(")
+            || tk.operator(")")
+            || tk.operator("[")
+            || tk.operator("]")
+            || tk.operator("{")
+            || tk.operator("}")
+            || tk.operator("<=")
+            || tk.operator(">=")
+            || tk.operator("<|")
+            || tk.operator("<")
+            || tk.operator(">")
+            || tk.operator("=")
+            || tk.operator(":")
+            || tk.operator(",")
+            || tk.operator("if")
+            || tk.operator("then")
+            || tk.operator("let")
+            || tk.operator("def")
+            || tk.identifier()
+            || tk.integer())
+        {
+            panic!("Unknown symbol: {}", tk.get_input())
+        }
+    }
+
+    tk.tokens.push(Token::EOF);
+
+    tk.tokens
 }
 
 /// Given a string, parses it and returns the result and its length.
@@ -18,6 +49,12 @@ fn str_to_fromstr<F: FromStr>(str: &str) -> Result<(F, usize), F::Err> {
     digit_part.parse().map(|value| (value, index))
 }
 
+struct Tokenizer {
+    input: String,
+    position: usize,
+    tokens: Vec<Token>,
+}
+
 impl Tokenizer {
     pub fn new(input: impl Into<String>) -> Tokenizer {
         let input: String = input.into();
@@ -28,42 +65,7 @@ impl Tokenizer {
             tokens: Vec::new(),
         }
     }
-    pub fn tokenize(input: &str) -> Vec<Token> {
-        let mut tk = Tokenizer::new(input);
 
-        while !tk.at_eof() {
-            tk.skip_space();
-            if !(tk.operator("+")
-                || tk.operator("-")
-                || tk.operator("(")
-                || tk.operator(")")
-                || tk.operator("[")
-                || tk.operator("]")
-                || tk.operator("{")
-                || tk.operator("}")
-                || tk.operator("<=")
-                || tk.operator(">=")
-                || tk.operator("<|")
-                || tk.operator("<")
-                || tk.operator(">")
-                || tk.operator("=")
-                || tk.operator(":")
-                || tk.operator(",")
-                || tk.operator("if")
-                || tk.operator("then")
-                || tk.operator("let")
-                || tk.operator("def")
-                || tk.identifier()
-                || tk.integer())
-            {
-                panic!("Unknown symbol: {}", tk.get_input())
-            }
-        }
-
-        tk.tokens.push(Token::EOF);
-
-        tk.tokens
-    }
     fn get_input(&self) -> &str {
         &self.input[self.position..]
     }
@@ -160,7 +162,7 @@ mod tests {
     fn operator_test() {
         use Token::*;
 
-        let tokens = Tokenizer::tokenize("66+34");
+        let tokens = tokenize("66+34");
         assert_eq!(
             tokens,
             vec![
@@ -171,7 +173,7 @@ mod tests {
             ]
         );
 
-        let tokens = Tokenizer::tokenize(r#"def add(x: Int, y: Int) = x + y"#);
+        let tokens = tokenize(r#"def add(x: Int, y: Int) = x + y"#);
         assert_eq!(
             tokens,
             vec![
