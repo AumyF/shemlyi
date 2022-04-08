@@ -1,5 +1,4 @@
-// extern crate rocshoi;
-
 fn main() {
-    println!("Hello, world!");
+    let tokens = rocshoi::tokenize("let x = 3");
+    println!("{:?}", tokens);
 }

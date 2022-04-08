@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-fn tokenize(input: &str) -> Vec<Token> {
+pub fn tokenize(input: &str) -> Vec<Token> {
     let mut tk = Tokenizer::new(input);
 
     while !tk.at_eof() {
@@ -137,7 +137,7 @@ impl Tokenizer {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-enum Token {
+pub enum Token {
     IntegerLiteral(u32),
     Operator(String),
     Identifier(String),
